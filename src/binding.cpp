@@ -2,16 +2,21 @@
 #include <vector>
 #include <unordered_map>
 #include <chrono>
+#include <node_version.h>
 
 #include "MatcherBase.h"
 
 using namespace Nan;
+using namespace std;
 
 #define CHECK(cond, msg)                                                       \
   if (!(cond)) {                                                               \
     ThrowTypeError(msg);                                                       \
     return;                                                                    \
   }
+
+#pragma message("NODE_MODULE_VERSION")
+#pragma message(NODE_MODULE_VERSION)
 
 template <typename T>
 T get_property(const v8::Local<v8::Object> &object, const char *name) {
@@ -30,9 +35,14 @@ T get_property(const v8::Local<v8::Object> &object, const char *name) {
  * This saves one string copy over using v8::String::Utf8Value.
  */
 std::string to_std_string(const v8::Local<v8::String> &v8str) {
+#if NODE_MODULE_VERSION >= 72
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   std::string str(v8str->Utf8Length(isolate), ' ');
   v8str->WriteUtf8(isolate, &str[0]);
+#else
+  std::string str(v8str->Utf8Length(), ' ');
+  v8str->WriteUtf8(&str[0]);
+#endif
   return str;
 }
 
@@ -53,7 +63,11 @@ std::string get_string_property(const v8::Local<v8::Object> &object,
       ThrowTypeError(msg.c_str());
     }
 
+#if NODE_MODULE_VERSION >= 72
     return to_std_string(Nan::To<v8::String>(propLocal).ToLocalChecked());
+#else
+    return to_std_string(propLocal->ToString());
+#endif
   }
   return std::string("");
 }
@@ -96,12 +110,20 @@ public:
     }
 
     CHECK(info[0]->IsString(), "First argument should be a query string");
+#if NODE_MODULE_VERSION >= 72
     std::string query(to_std_string(Nan::To<v8::String>(info[0]).ToLocalChecked()));
+#else
+    std::string query(to_std_string(info[0]->ToString()));
+#endif
 
     MatcherOptions options;
     if (info.Length() > 1) {
       CHECK(info[1]->IsObject(), "Second argument should be an options object");
+#if NODE_MODULE_VERSION >= 72
       auto options_obj = Nan::To<v8::Object>(info[1]).ToLocalChecked();
+#else
+      auto options_obj = info[1]->ToObject();
+#endif
       options.case_sensitive = get_property<bool>(options_obj, "caseSensitive");
       options.smart_case = get_property<bool>(options_obj, "smartCase");
       options.num_threads = get_property<int>(options_obj, "numThreads");
@@ -163,7 +185,11 @@ public:
         auto id_value = ids->Get(i);
         CHECK(id_value->IsUint32(), "Expected first array to only contain unsigned 32-bit integer ids");
         auto id = v8::Local<v8::Uint32>::Cast(id_value)->Value();
+#if NODE_MODULE_VERSION >= 72
         auto value = to_std_string(Nan::To<v8::String>(values->Get(i)).ToLocalChecked());
+#else
+        auto value = to_std_string(values->Get(i)->ToString());
+#endif
         matcher->impl_.addCandidate(id, value);
       }
     }
