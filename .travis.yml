@@ -46,10 +46,6 @@ matrix:
       env: NODE_VERSION="12.8.1" ELECTRON="7.3.2" CXX="clang"
       
 before_install:
-  - rm -rf ~/.nvm/ && git clone --depth 1 "https://github.com/creationix/nvm.git" ~/.nvm
-  - source ~/.nvm/nvm.sh
-  - nvm install $NODE_VERSION
-  - nvm use $NODE_VERSION
   - export PATH="./node_modules/.bin/:$PATH"
 
 install:
