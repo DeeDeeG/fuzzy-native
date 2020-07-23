@@ -49,11 +49,6 @@ script:
 git:
   depth: 10
 
-branches:
-  only:
-    - master
-    - /^v\d+\.\d+\.\d+(?:-[a-z0-9.-]+)?$/
-
 before_deploy:
   - export RELEASE_NODE_FILE=$(find build/stage -name '*.tar.gz')
   - echo "Deploying $RELEASE_NODE_FILE to GitHub"
