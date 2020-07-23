@@ -1,5 +1,7 @@
 sudo: false
 
+dist: precise
+
 addons:
   apt:
     sources:
