@@ -86,10 +86,8 @@ public:
     SetPrototypeMethod(tpl, "removeCandidates", RemoveCandidates);
     SetPrototypeMethod(tpl, "setCandidates", SetCandidates);
 
-    v8::Local<v8::Context> context = Nan::GetCurrentContext();
-
-    MatcherConstructor.Reset(tpl->GetFunction(context).ToLocalChecked());
-    Set(exports, Nan::New("Matcher").ToLocalChecked(), tpl->GetFunction(context).ToLocalChecked());
+    MatcherConstructor.Reset(tpl->GetFunction(Nan::GetCurrentContext()).ToLocalChecked());
+    exports->Set(Nan::GetCurrentContext(), Nan::New("Matcher").ToLocalChecked(), tpl->GetFunction(Nan::GetCurrentContext()).ToLocalChecked());
   }
 
   static void Create(const Nan::FunctionCallbackInfo<v8::Value> &info) {
@@ -149,11 +147,11 @@ public:
       if (match.matchIndexes != nullptr) {
         auto array = New<v8::Array>(match.matchIndexes->size());
         for (size_t i = 0; i < array->Length(); i++) {
-          array->Set(i, New(match.matchIndexes->at(i)));
+          array->Set(Nan::GetCurrentContext(), i, New(match.matchIndexes->at(i)));
         }
         Set(obj, matchIndexesKey, array);
       }
-      result->Set(result_count++, obj);
+      result->Set(Nan::GetCurrentContext(), result_count++, obj);
     }
     info.GetReturnValue().Set(result);
   }
