@@ -62,39 +62,10 @@ install:
       export npm_config_runtime=electron;
       export npm_config_build_from_source=true;
     fi
-  - |
-    pushd fuzzy-native
-      npm install
-      npm run build
-    popd
-  - |
-    pushd keytar
-      npm install
-      npm run build
-    popd
-  - |
-    pushd pty
-      npm install
-      npm run tsc
-      npm run build
-    popd
+  - npm install
 
 script:
-  - |
-    pushd fuzzy-native
-      [[ -z "$ELECTRON" ]] && npm test
-      node-pre-gyp configure build package testpackage
-    popd
-  - |
-    pushd keytar
-      [[ -z "$ELECTRON" ]] && npm test
-      node-pre-gyp configure build package testpackage
-    popd
-  - |
-    pushd pty
-      [[ -z "$ELECTRON" ]] && npm test
-      node-pre-gyp configure build package testpackage
-    popd
+  - [[ -z "$ELECTRON" ]] && npm test
 
 git:
   depth: 10
