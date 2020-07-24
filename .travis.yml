@@ -64,7 +64,8 @@ install:
     fi
   - npm install
 
-script: [[ -z "$ELECTRON" ]] && npm test
+script: |
+  [[ -z "$ELECTRON" ]] && npm test
 
 git:
   depth: 10
