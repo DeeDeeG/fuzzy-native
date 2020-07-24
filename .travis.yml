@@ -70,11 +70,6 @@ script:
 git:
   depth: 10
 
-branches:
-  only:
-    - master
-    - /^v\d+\.\d+\.\d+(?:-[a-z0-9.-]+)?$/
-
 deploy:
   provider: releases
   api_key:
